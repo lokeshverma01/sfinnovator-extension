@@ -69,7 +69,25 @@ _To be documented when we wire Tailwind (Phase 0)._
 _To be documented when we add content collections (Phase 1)._
 
 ### seo-issues
-_To be documented when we build BaseHead/seo.ts (Phase 1)._
+**Symptom:** Social share shows no image / broken image (Facebook, LinkedIn, X, Slack).
+**Component/area:** OG image — `public/images/og-default.png`, `src/lib/siteConfig.ts` (`defaultOgImage`), `src/components/BaseHead.astro` (`og:image`).
+**How to debug:** `ls public/images/og-default.png` (must exist, 1200×630). View built HTML: `grep og:image dist/index.html` — URL must be absolute and reachable.
+**Fixes:** regenerate with `pnpm og:image` (edits come from `src/assets/og-default.svg`). Ensure the URL is absolute (the SEO engine makes it so).
+
+---
+
+**Symptom:** The github.io preview is showing up in Google search results.
+**Component/area:** Deploy-aware indexing — `src/lib/seo.ts` (`isProductionDomain`), `src/pages/robots.txt.ts`, `BaseHead` robots meta.
+**Expected behavior:** On any non-production origin, pages emit `noindex, nofollow` and `robots.txt` is `Disallow: /`. Verify: `DEPLOY_TARGET=ghpages pnpm build` then `cat dist/robots.txt` (should disallow) and `grep 'name="robots"' dist/index.html` (should be noindex).
+**Root causes & fixes:**
+- `siteConfig.url` doesn't exactly match the production `site` in `astro.config.mjs` → `isProductionDomain` is wrong. Keep them identical.
+- Building production locally and deploying that output to the preview would mark it indexable. Always build the preview with `DEPLOY_TARGET=ghpages` (the CI workflow does this).
+
+---
+
+**Symptom:** RSS feed (`/rss.xml`) is empty or 404s.
+**Component/area:** `src/pages/rss.xml.ts`, `@astrojs/rss`, the `blog` content collection.
+**Notes:** An empty feed (0 `<item>`s) is NORMAL until blog posts exist — it's still valid. A 404 means the build didn't emit it; confirm `@astrojs/rss` is installed and the file is under `src/pages/`.
 
 ### routing-404
 _To be documented when we add multiple pages (Phase 1+)._

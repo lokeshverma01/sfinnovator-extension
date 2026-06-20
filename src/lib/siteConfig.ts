@@ -24,6 +24,12 @@ export const siteConfig = {
     twitter: "@sfinnovator",
   },
 
+  /** Content language (BCP-47). Used for <html lang> and og:locale. */
+  locale: "en_US",
+
+  /** Brand color for the browser UI (address bar on mobile). */
+  themeColor: "#0176d3",
+
   /** Primary navigation. Order = display order. */
   nav: [
     { label: "Blog", href: "/blog" },

@@ -1,5 +1,0 @@
-# robots.txt — allow all crawlers, point them to the sitemap (SEO).
-User-agent: *
-Allow: /
-
-Sitemap: https://sfinnovator.com/sitemap-index.xml
