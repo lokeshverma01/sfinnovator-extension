@@ -19,8 +19,12 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Deploy on every push to main.
+  # Build + deploy on every push to main.
   push:
+    branches: [main]
+  # Build (validate only, no deploy) on PRs targeting main.
+  # This is what branch protection's required "build" check gates on.
+  pull_request:
     branches: [main]
   # Allow manual runs from the Actions tab.
   workflow_dispatch:
@@ -71,6 +75,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # Only deploy on a real push to main (or manual run) — never for a PR.
+    # PRs run the build job above for validation, but must not publish.
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
