@@ -11,6 +11,7 @@
  */
 import { resolveSeo, type SeoInput } from "@/lib/seo";
 import { siteConfig } from "@/lib/siteConfig";
+import { withBase } from "@/lib/paths";
 
 type Props = SeoInput;
 const seo = resolveSeo(Astro.props);
@@ -53,8 +54,8 @@ const jsonLd = {
 <meta name="twitter:image" content={seo.image} />
 
 <!-- Icons + feeds -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
+<link rel="sitemap" href={withBase("/sitemap-index.xml")} />
 
 <!-- Structured data -->
 <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

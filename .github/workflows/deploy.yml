@@ -1,0 +1,79 @@
+# ============================================================================
+# GitHub Actions - build the Astro site and deploy it to GitHub Pages.
+#
+# This is the CI/CD that replaces "push to Azure -> auto-deploy". Every push to
+# `main` rebuilds the site and publishes it to GitHub Pages automatically.
+#
+# Flow:
+#   1. build job - checkout, install pnpm + Node, `pnpm build` (in ghpages mode
+#      so the /sfinnovator-extension sub-path is baked in), upload the artifact.
+#   2. deploy job - publish that artifact to GitHub Pages.
+#
+# Security notes:
+#   - Uses only official, major-version-pinned actions.
+#   - Minimum permissions needed (see `permissions:` below).
+#   - No secrets required - Pages deployment uses the built-in GITHUB_TOKEN.
+#   - No untrusted input (issue/PR text, etc.) is used in any run: step, so
+#     there is no workflow-injection surface.
+# ============================================================================
+name: Deploy to GitHub Pages
+
+on:
+  # Deploy on every push to main.
+  push:
+    branches: [main]
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+
+# Least-privilege permissions for the built-in token.
+permissions:
+  contents: read   # read the repo
+  pages: write     # publish to Pages
+  id-token: write  # authenticate the Pages deployment
+
+# Allow only one concurrent deploy; don't cancel an in-progress one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (GitHub Pages mode)
+        env:
+          DEPLOY_TARGET: ghpages # makes Astro use the /sfinnovator-extension base
+        run: pnpm build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

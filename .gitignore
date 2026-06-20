@@ -20,3 +20,6 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 Thumbs.db
+
+# Local tool / agent settings (machine-specific, not project config)
+.claude/

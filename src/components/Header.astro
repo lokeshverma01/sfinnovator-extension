@@ -9,6 +9,7 @@
  * Used by: src/layouts/BaseLayout.astro
  */
 import { siteConfig } from "@/lib/siteConfig";
+import { withBase } from "@/lib/paths";
 import ThemeToggle from "@/components/ThemeToggle.astro";
 ---
 
@@ -18,7 +19,7 @@ import ThemeToggle from "@/components/ThemeToggle.astro";
 >
   <div class="mx-auto flex h-16 max-w-content items-center justify-between px-6">
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-2 text-[18px] font-bold tracking-tight">
+    <a href={withBase("/")} class="flex items-center gap-2 text-[18px] font-bold tracking-tight">
       <span class="inline-block h-2.5 w-2.5 rounded-full bg-accent"></span>
       {siteConfig.name}
     </a>
@@ -28,7 +29,7 @@ import ThemeToggle from "@/components/ThemeToggle.astro";
       {
         siteConfig.nav.map((item) => (
           <a
-            href={item.href}
+            href={withBase(item.href)}
             class="text-[15px] text-muted transition-colors hover:text-text"
           >
             {item.label}

@@ -9,6 +9,7 @@
  * Used by: src/layouts/BaseLayout.astro
  */
 import { siteConfig } from "@/lib/siteConfig";
+import { withBase } from "@/lib/paths";
 
 // Static build year. (We avoid Date.now()/new Date() at module scope elsewhere,
 // but a build-time year in the footer is fine and stable per deploy.)
@@ -23,7 +24,7 @@ const year = new Date().getFullYear();
     <div class="flex gap-6 text-[14px]">
       {
         siteConfig.socials.map((s) => (
-          <a href={s.href} class="text-muted transition-colors hover:text-text">
+          <a href={withBase(s.href)} class="text-muted transition-colors hover:text-text">
             {s.label}
           </a>
         ))

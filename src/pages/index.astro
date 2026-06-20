@@ -13,6 +13,7 @@ import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostCard from "@/components/PostCard.astro";
 import { formatDate } from "@/lib/utils";
+import { withBase } from "@/lib/paths";
 
 // Pull published (non-draft) posts, newest first, max 3 for the landing grid.
 const posts = (await getCollection("blog", ({ data }) => !data.draft))
@@ -77,13 +78,13 @@ const hasPosts = posts.length > 0;
       </p>
       <div class="flex flex-wrap justify-center gap-4">
         <a
-          href="/blog"
+          href={withBase("/blog")}
           class="inline-flex items-center gap-2 rounded-[10px] bg-accent px-[22px] py-3 text-[15px] font-semibold text-accent-contrast transition-transform hover:-translate-y-0.5"
         >
           Read the blog →
         </a>
         <a
-          href="/portfolio"
+          href={withBase("/portfolio")}
           class="inline-flex items-center gap-2 rounded-[10px] border border-border px-[22px] py-3 text-[15px] font-semibold text-text transition-colors hover:border-accent"
         >
           View portfolio
@@ -97,7 +98,7 @@ const hasPosts = posts.length > 0;
     <div class="mx-auto max-w-content">
       <div class="mb-8 flex items-baseline justify-between">
         <h2 class="text-2xl font-bold tracking-tight">Latest posts</h2>
-        <a href="/blog" class="text-[14px] text-accent">View all →</a>
+        <a href={withBase("/blog")} class="text-[14px] text-accent">View all →</a>
       </div>
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -110,7 +111,7 @@ const hasPosts = posts.length > 0;
                   category={post.data.category}
                   date={formatDate(post.data.publishDate)}
                   minutes={5}
-                  href={`/blog/${post.slug}`}
+                  href={withBase(`/blog/${post.slug}`)}
                 />
               ))
             : placeholders.map((p) => (
@@ -120,7 +121,7 @@ const hasPosts = posts.length > 0;
                   category={p.category}
                   date={p.date}
                   minutes={p.minutes}
-                  href={p.href}
+                  href={withBase(p.href)}
                 />
               ))
         }
