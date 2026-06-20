@@ -1,0 +1,60 @@
+---
+/**
+ * BaseHead — everything inside <head> for SEO and social sharing.
+ *
+ * Centralizes: charset, viewport, title, meta description, canonical link,
+ * Open Graph + Twitter cards, favicon, sitemap link, and JSON-LD structured
+ * data. Driven by resolveSeo() so every page is consistent.
+ *
+ * Props: SeoInput (title?, description?, path?, image?, type?)
+ * Used by: src/layouts/BaseLayout.astro
+ */
+import { resolveSeo, type SeoInput } from "@/lib/seo";
+import { siteConfig } from "@/lib/siteConfig";
+
+type Props = SeoInput;
+const seo = resolveSeo(Astro.props);
+
+// JSON-LD structured data helps search engines understand the site/author.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  description: siteConfig.description,
+  author: {
+    "@type": "Person",
+    name: siteConfig.author.name,
+  },
+};
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Primary SEO -->
+<title>{seo.title}</title>
+<meta name="description" content={seo.description} />
+<link rel="canonical" href={seo.canonical} />
+
+<!-- Open Graph (Facebook, LinkedIn, etc.) -->
+<meta property="og:type" content={seo.type} />
+<meta property="og:title" content={seo.title} />
+<meta property="og:description" content={seo.description} />
+<meta property="og:url" content={seo.canonical} />
+<meta property="og:image" content={seo.image} />
+<meta property="og:site_name" content={siteConfig.name} />
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={seo.title} />
+<meta name="twitter:description" content={seo.description} />
+<meta name="twitter:image" content={seo.image} />
+
+<!-- Icons + feeds -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<!-- Structured data -->
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

@@ -1,0 +1,41 @@
+---
+/**
+ * PostCard — summary card for a single blog post.
+ *
+ * Pure presentational component: it receives data via props and renders markup.
+ * It does NOT fetch content (the page passes data in). Reused on the landing
+ * page and the future /blog index.
+ *
+ * Props:
+ *   title    string  — post title (rendered as the card heading)
+ *   excerpt  string  — short description / meta description
+ *   category string  — shown as a tag pill
+ *   date     string  — preformatted display date (e.g. "Jun 18, 2026")
+ *   minutes  number  — estimated reading time in minutes
+ *   href     string  — link to the full post
+ * Used by: src/pages/index.astro (and future src/pages/blog/index.astro)
+ */
+interface Props {
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  minutes: number;
+  href: string;
+}
+const { title, excerpt, category, date, minutes, href } = Astro.props;
+---
+
+<a
+  href={href}
+  class="flex flex-col gap-3 rounded border border-border bg-card p-6 shadow-[var(--card-shadow)] transition-transform hover:-translate-y-1 hover:border-accent"
+>
+  <span
+    class="self-start rounded-full bg-tag-bg px-2.5 py-1 text-xs font-semibold text-tag-text"
+  >
+    {category}
+  </span>
+  <h3 class="text-[19px] font-semibold leading-snug tracking-tight">{title}</h3>
+  <p class="text-[15px] leading-relaxed text-muted">{excerpt}</p>
+  <span class="mt-auto text-[13px] text-muted">{date} · {minutes} min read</span>
+</a>
