@@ -75,4 +75,20 @@ _To be documented when we build BaseHead/seo.ts (Phase 1)._
 _To be documented when we add multiple pages (Phase 1+)._
 
 ### deploy-fails
-_To be documented when we confirm the deploy pipeline (Phase 0)._
+**Symptom:** GitHub Actions deploy run fails fast (~15s) in the "Setup Node" / pnpm step with `Error [ERR_UNKNOWN_BUILTIN_MODULE]: No such built-in module: node:sqlite` and `This version of pnpm requires at least Node.js v22.13`.
+**Component/area:** CI workflow — `.github/workflows/deploy.yml` (Node + pnpm versions).
+**Configuration involved:** `actions/setup-node` `node-version` vs. `pnpm/action-setup` `version`.
+**How to debug (in order):**
+1. `gh run list` → find the failed run; `gh run view <id> --log-failed`.
+2. Look for the pnpm/Node version warning near the crash.
+**Common root causes & fixes:**
+- **Node too old for pnpm.** pnpm 11.x requires Node ≥ 22.13; workflow pinned Node 20 → crash. **Fix:** set `node-version: 22` in the workflow (and keep `.nvmrc` = 22 to match).
+- Keep the workflow's pnpm major aligned with the `pnpm-lock.yaml` `lockfileVersion` (we use pnpm 11 + lockfile 9.0).
+**Verified fix:** re-run concludes **success**; `curl -I` the Pages URL returns 200.
+
+---
+
+**Symptom:** Live Pages site loads but is **unstyled / links 404** (CSS and internal links point to `/_astro/...` or `/blog` instead of `/sfinnovator-extension/...`).
+**Component/area:** Base-path config — `astro.config.mjs` (`base`), `src/lib/paths.ts` (`withBase`).
+**Root cause:** A hard-coded internal path that bypassed `withBase()`, or building without `DEPLOY_TARGET=ghpages`.
+**Fix:** route every internal href/asset through `withBase()`; ensure the workflow builds with `DEPLOY_TARGET=ghpages`. Verify: `curl -s <url> | grep _astro` shows the `/sfinnovator-extension/` prefix.

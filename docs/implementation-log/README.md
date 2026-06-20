@@ -15,8 +15,8 @@ This is the **build journal** for SF Innovator. It records, step-by-step, *exact
 
 | # | Entry | Phase | Status |
 |---|---|---|---|
-| 0001 | (to be written when we scaffold) Foundation: repo, Astro, Tailwind, deploy | Phase 0 | ⏳ pending |
-| 0002 | (planned) Landing page: layout, header, footer, theme toggle | Phase 1 | ⏳ pending |
+| 0001 | [Foundation + Landing Page](./0001-foundation-and-landing.md) | Phase 0 + 1 | ✅ done |
+| 0002 | [GitHub Repo + GitHub Pages Deploy](./0002-github-pages-deploy.md) | Phase 0 (CI) | ✅ done |
 
 ---
 
