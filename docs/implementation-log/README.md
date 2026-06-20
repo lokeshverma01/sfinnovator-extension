@@ -17,6 +17,7 @@ This is the **build journal** for SF Innovator. It records, step-by-step, *exact
 |---|---|---|---|
 | 0001 | [Foundation + Landing Page](./0001-foundation-and-landing.md) | Phase 0 + 1 | ✅ done |
 | 0002 | [GitHub Repo + GitHub Pages Deploy](./0002-github-pages-deploy.md) | Phase 0 (CI) | ✅ done |
+| 0003 | [Branch Protection on main](./0003-branch-protection.md) | Phase 0 (governance) | ✅ done |
 
 ---
 
