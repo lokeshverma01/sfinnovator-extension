@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  og-default.svg — source for the default social-share image (1200x630).
+  Edit THIS file, then run `pnpm og:image` to regenerate public/images/og-default.png.
+  Kept as SVG so the design is version-controlled and easy to tweak.
+-->
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="100%" stop-color="#0f1f38"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Accent bar -->
+  <rect x="80" y="120" width="64" height="8" rx="4" fill="#0176d3"/>
+
+  <!-- Brand mark -->
+  <g transform="translate(80, 160)">
+    <rect width="56" height="56" rx="12" fill="#0176d3"/>
+    <text x="28" y="38" font-family="Helvetica, Arial, sans-serif" font-size="26"
+          font-weight="700" fill="#ffffff" text-anchor="middle">SF</text>
+    <text x="76" y="38" font-family="Helvetica, Arial, sans-serif" font-size="30"
+          font-weight="700" fill="#e8eaed">SF Innovator</text>
+  </g>
+
+  <!-- Headline -->
+  <text x="80" y="330" font-family="Helvetica, Arial, sans-serif" font-size="64"
+        font-weight="800" fill="#ffffff">Salesforce, explained</text>
+  <text x="80" y="410" font-family="Helvetica, Arial, sans-serif" font-size="64"
+        font-weight="800" fill="#ffffff">by building it.</text>
+
+  <!-- Subline -->
+  <text x="80" y="480" font-family="Helvetica, Arial, sans-serif" font-size="28"
+        fill="#9aa0a6">Implementations · use cases · debugging · portfolio</text>
+
+  <!-- Domain -->
+  <text x="80" y="560" font-family="Helvetica, Arial, sans-serif" font-size="24"
+        font-weight="600" fill="#4fa8ff">sfinnovator.com</text>
+</svg>
