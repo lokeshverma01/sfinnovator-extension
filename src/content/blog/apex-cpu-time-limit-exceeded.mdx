@@ -1,0 +1,74 @@
+---
+# ── COMMON FIELDS ────────────────────────────────────────────────────────────
+postType: debugging
+title: "Resolving the Apex CPU Time Limit Exceeded error"
+description: "Root-cause analysis of the Apex CPU time governor limit, with three concrete ways to refactor your code and a prevention checklist."
+category: ["Developer"]
+tags: ["Apex", "Governor Limits", "Performance"]
+difficulty: "Advanced"
+publishDate: 2026-06-12
+# ── DEBUGGING-SPECIFIC FIELDS ────────────────────────────────────────────────
+symptom: "A transaction fails partway through with a runtime error after heavy processing."
+errorMessage: "System.LimitException: Apex CPU time limit exceeded"
+rootCauseSummary: "Synchronous Apex exceeded the 10,000 ms CPU budget, usually from nested loops or work done inside a loop that should be bulkified."
+affectedFeatures: ["Apex Triggers", "Record-Triggered Flow", "Batch Apex"]
+status: "Resolved"
+# resolvedInRelease: "Summer '26"   # only if a platform fix applies
+---
+
+The CPU time limit is one of the most common — and most confusing — governor
+limits, because the same code can pass with small data and fail at scale.
+
+## Symptom
+
+A transaction runs for a while, then aborts. Users see a failure and the debug
+log ends with the CPU time exception. It often appears only with larger data
+volumes or when multiple automations stack on one DML.
+
+## Environment / applies to
+
+- Synchronous Apex (triggers, controllers) — limit is **10,000 ms**.
+- Asynchronous Apex (Batch, Queueable) — limit is **60,000 ms**.
+
+## Root cause
+
+CPU time measures *compute*, not callouts or DML waits. The usual culprit is
+work multiplied inside loops — nested loops over collections, or repeated
+queries/formula evaluations that should run once.
+
+<Callout type="error" title="The classic anti-pattern">
+  A loop inside a loop over large lists turns O(n) work into O(n²) — fine for 50
+  records, fatal for 5,000.
+</Callout>
+
+## Resolution
+
+<Steps>
+  <Step title="Find the hot spot">
+    Open the debug log, set the **Apex Profiling** level, and look for the method
+    consuming the most cumulative time.
+  </Step>
+  <Step title="Replace nested loops with maps">
+    Build a `Map` keyed by the lookup field, then resolve matches in a single
+    pass instead of an inner loop.
+  </Step>
+  <Step title="Move heavy work async">
+    If the logic genuinely needs more time, offload it to Queueable or Batch
+    Apex where the budget is 60s.
+  </Step>
+</Steps>
+
+## Workaround
+
+If you can't refactor immediately, reduce batch size or split the automation so
+fewer records are processed per transaction.
+
+## Prevention
+
+- Bulkify everything; never query or DML inside a loop.
+- Use maps/sets for lookups instead of nested iteration.
+- Add tests that assert against realistic (200+) record volumes.
+
+## Related issues
+
+- See also: governor limit basics and async Apex patterns.

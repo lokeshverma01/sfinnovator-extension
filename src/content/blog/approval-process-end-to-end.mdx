@@ -1,0 +1,77 @@
+---
+# ── COMMON FIELDS (every post) ───────────────────────────────────────────────
+postType: implementation        # implementation | use-case | debugging
+title: "Build an Approval Process end-to-end in Salesforce"
+description: "A complete, click-by-click walkthrough of building a multi-step approval process using only out-of-the-box Salesforce tools."
+category: ["Admin"]             # Admin | Developer | Architect | Consultant
+tags: ["Approval Process", "Automation", "Setup"]
+difficulty: "Beginner"
+publishDate: 2026-06-10
+# updatedDate: 2026-06-18        # uncomment when you revise
+# author: "Lokesh Verma"         # defaults to the site author
+# ── IMPLEMENTATION-SPECIFIC FIELDS ───────────────────────────────────────────
+estimatedTime: "30 minutes"
+salesforceEdition: "Enterprise · Summer '26"
+featuresUsed: ["Approval Process", "Email Alerts", "Page Layouts"]
+prerequisites:
+  - "System Administrator profile (or Manage Approval Processes permission)"
+  - "An object with records to approve (this guide uses Opportunity)"
+# repoUrl: "https://github.com/you/repo"
+# demoUrl: "https://example.com/demo"
+---
+
+Approval processes let you route records for sign-off without a line of code.
+In this guide we'll build a two-step Opportunity discount approval from scratch.
+
+## Overview
+
+By the end you'll have an approval that triggers when a discount exceeds 20%,
+routes to the sales manager, then to finance, and emails the submitter at each
+stage.
+
+## Business context
+
+Sales reps shouldn't be able to grant large discounts unilaterally. A structured
+approval keeps margins safe while staying fast for small, low-risk deals.
+
+## Step-by-step implementation
+
+<Steps>
+  <Step title="Create the approval process">
+    Go to **Setup → Approval Processes**, pick **Opportunity**, and choose
+    **Use Jump Start Wizard** for a quick start (or Standard for full control).
+  </Step>
+  <Step title="Set the entry criteria">
+    Add the criterion `Discount Percent greater than 20`. Only records that meet
+    this enter the approval.
+  </Step>
+  <Step title="Define the approval steps">
+    Step 1 → assign to the **Opportunity Owner's Manager**. Step 2 → assign to a
+    **Finance** queue.
+  </Step>
+  <Step title="Add actions">
+    On final approval, update `Approval Status` to *Approved*. On rejection, set
+    it to *Rejected* and notify the owner.
+  </Step>
+</Steps>
+
+<Callout type="warning" title="Lock records on submit">
+  Enable **record lock** on submission so the discount can't be edited while it's
+  awaiting approval.
+</Callout>
+
+## Verification
+
+Create an Opportunity with a 25% discount and click **Submit for Approval**.
+Confirm it appears in the manager's approval queue and the submitter gets the
+email alert.
+
+## Key takeaways
+
+- Approval processes are 100% declarative — no code.
+- Entry criteria keep low-risk records moving fast.
+- Record locking protects data integrity mid-approval.
+
+## Resources
+
+- [Salesforce Help: Approval Processes](https://help.salesforce.com/)

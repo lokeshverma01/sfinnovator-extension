@@ -1,0 +1,42 @@
+---
+/**
+ * /blog/page/[page] — listing pages 2, 3, … (page 1 is /blog).
+ *
+ * getStaticPaths generates a static page per pagination page (starting at 2).
+ * No server, no DB. Uses the shared BlogIndex UI.
+ */
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogIndex from "@/components/BlogIndex.astro";
+import { getPublishedPosts, POSTS_PER_PAGE } from "@/lib/posts";
+
+export const getStaticPaths = (async () => {
+  const all = await getPublishedPosts();
+  const lastPage = Math.max(1, Math.ceil(all.length / POSTS_PER_PAGE));
+
+  const paths = [];
+  // Pages 2..lastPage (page 1 is served by /blog/index.astro).
+  for (let p = 2; p <= lastPage; p++) {
+    const start = (p - 1) * POSTS_PER_PAGE;
+    paths.push({
+      params: { page: String(p) },
+      props: {
+        posts: all.slice(start, start + POSTS_PER_PAGE),
+        currentPage: p,
+        lastPage,
+      },
+    });
+  }
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { posts, currentPage, lastPage } = Astro.props;
+---
+
+<BaseLayout
+  title={`Blog — Page ${currentPage}`}
+  description="Salesforce implementations, use-case scenarios, and error-debugging write-ups."
+  path={`/blog/page/${currentPage}`}
+>
+  <BlogIndex posts={posts} currentPage={currentPage} lastPage={lastPage} />
+</BaseLayout>

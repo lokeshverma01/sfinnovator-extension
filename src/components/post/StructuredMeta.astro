@@ -1,0 +1,167 @@
+---
+/**
+ * StructuredMeta — renders the TYPE-SPECIFIC frontmatter as a consistent info
+ * panel at the top of every post body. This is what turns "fields you fill in"
+ * into a polished, uniform UI block — the same shape every time, à la the
+ * Salesforce Known Issues detail header.
+ *
+ * It switches on `data.postType`:
+ *   implementation → prerequisites, time, edition, features, repo/demo links
+ *   use-case       → scenario, personas, products, business impact
+ *   debugging      → status badge, error message, symptom, root cause, affected
+ *
+ * Props:
+ *   data: the validated frontmatter object (CollectionEntry<"blog">["data"])
+ * Used by: PostLayout.astro
+ */
+import StatusBadge from "@/components/post/StatusBadge.astro";
+
+interface Props {
+  data: any; // discriminated union from content schema; narrowed via postType
+}
+const { data } = Astro.props;
+
+// Small helper to render a labeled row.
+const chip = "rounded-full bg-tag-bg px-2.5 py-0.5 text-xs font-semibold text-tag-text";
+---
+
+<div class="my-6 rounded border border-border bg-bg-subtle p-5">
+  {/* ---------------------------- implementation ---------------------------- */}
+  {
+    data.postType === "implementation" && (
+      <dl class="grid gap-3 sm:grid-cols-2">
+        {data.estimatedTime && (
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-muted">Time</dt>
+            <dd class="text-[15px] text-text">{data.estimatedTime}</dd>
+          </div>
+        )}
+        {data.salesforceEdition && (
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-muted">Edition / Release</dt>
+            <dd class="text-[15px] text-text">{data.salesforceEdition}</dd>
+          </div>
+        )}
+        {data.featuresUsed?.length > 0 && (
+          <div class="sm:col-span-2">
+            <dt class="mb-1 text-xs font-bold uppercase tracking-wide text-muted">Features used</dt>
+            <dd class="flex flex-wrap gap-2">
+              {data.featuresUsed.map((f: string) => (
+                <span class={chip}>{f}</span>
+              ))}
+            </dd>
+          </div>
+        )}
+        {data.prerequisites?.length > 0 && (
+          <div class="sm:col-span-2">
+            <dt class="mb-1 text-xs font-bold uppercase tracking-wide text-muted">Prerequisites</dt>
+            <dd>
+              <ul class="list-disc space-y-1 pl-5 text-[15px] text-text">
+                {data.prerequisites.map((p: string) => (
+                  <li>{p}</li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        )}
+        {(data.repoUrl || data.demoUrl) && (
+          <div class="flex gap-3 sm:col-span-2">
+            {data.demoUrl && (
+              <a href={data.demoUrl} class="text-[15px] font-semibold text-accent underline">
+                Live demo →
+              </a>
+            )}
+            {data.repoUrl && (
+              <a href={data.repoUrl} class="text-[15px] font-semibold text-accent underline">
+                Source code →
+              </a>
+            )}
+          </div>
+        )}
+      </dl>
+    )
+  }
+
+  {/* ------------------------------- use-case ------------------------------- */}
+  {
+    data.postType === "use-case" && (
+      <dl class="grid gap-3 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <dt class="text-xs font-bold uppercase tracking-wide text-muted">The scenario</dt>
+          <dd class="text-[15px] text-text">{data.scenario}</dd>
+        </div>
+        {data.personas?.length > 0 && (
+          <div>
+            <dt class="mb-1 text-xs font-bold uppercase tracking-wide text-muted">Who it's for</dt>
+            <dd class="flex flex-wrap gap-2">
+              {data.personas.map((p: string) => (
+                <span class={chip}>{p}</span>
+              ))}
+            </dd>
+          </div>
+        )}
+        {data.products?.length > 0 && (
+          <div>
+            <dt class="mb-1 text-xs font-bold uppercase tracking-wide text-muted">Products</dt>
+            <dd class="flex flex-wrap gap-2">
+              {data.products.map((p: string) => (
+                <span class={chip}>{p}</span>
+              ))}
+            </dd>
+          </div>
+        )}
+        {data.businessImpact && (
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-bold uppercase tracking-wide text-muted">Business impact</dt>
+            <dd class="text-[15px] font-medium text-text">{data.businessImpact}</dd>
+          </div>
+        )}
+      </dl>
+    )
+  }
+
+  {/* ------------------------------ debugging ------------------------------- */}
+  {
+    data.postType === "debugging" && (
+      <dl class="grid gap-3 sm:grid-cols-2">
+        <div class="flex items-center gap-3 sm:col-span-2">
+          <dt class="text-xs font-bold uppercase tracking-wide text-muted">Status</dt>
+          <dd>
+            <StatusBadge status={data.status} />
+            {data.resolvedInRelease && (
+              <span class="ml-2 text-[14px] text-muted">in {data.resolvedInRelease}</span>
+            )}
+          </dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-xs font-bold uppercase tracking-wide text-muted">Symptom</dt>
+          <dd class="text-[15px] text-text">{data.symptom}</dd>
+        </div>
+        {data.errorMessage && (
+          <div class="sm:col-span-2">
+            <dt class="mb-1 text-xs font-bold uppercase tracking-wide text-muted">Error message</dt>
+            <dd>
+              <code class="block overflow-x-auto rounded border border-border bg-bg px-3 py-2 text-[13px] text-text">
+                {data.errorMessage}
+              </code>
+            </dd>
+          </div>
+        )}
+        <div class="sm:col-span-2">
+          <dt class="text-xs font-bold uppercase tracking-wide text-muted">Root cause</dt>
+          <dd class="text-[15px] text-text">{data.rootCauseSummary}</dd>
+        </div>
+        {data.affectedFeatures?.length > 0 && (
+          <div class="sm:col-span-2">
+            <dt class="mb-1 text-xs font-bold uppercase tracking-wide text-muted">Affected</dt>
+            <dd class="flex flex-wrap gap-2">
+              {data.affectedFeatures.map((f: string) => (
+                <span class={chip}>{f}</span>
+              ))}
+            </dd>
+          </div>
+        )}
+      </dl>
+    )
+  }
+</div>

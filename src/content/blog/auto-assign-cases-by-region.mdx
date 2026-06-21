@@ -1,0 +1,63 @@
+---
+# ── COMMON FIELDS ────────────────────────────────────────────────────────────
+postType: use-case
+title: "Auto-assign cases by region using Flow"
+description: "A real support scenario: route inbound cases to the right regional queue automatically, with zero code, using a record-triggered Flow."
+category: ["Admin", "Consultant"]
+tags: ["Flow", "Case Management", "Service Cloud"]
+difficulty: "Intermediate"
+publishDate: 2026-06-05
+# ── USE-CASE-SPECIFIC FIELDS ─────────────────────────────────────────────────
+scenario: "Support cases land in one global queue and agents manually re-route them, wasting time and breaking SLAs."
+personas: ["Support Manager", "Admin"]
+products: ["Service Cloud", "Flow", "Omni-Channel"]
+businessImpact: "Cut average case routing time from minutes to seconds."
+---
+
+When every case lands in a single queue, agents waste time triaging and SLAs
+slip. Let's fix that with a record-triggered Flow that routes by region.
+
+## The business problem
+
+A global support team receives cases from four regions. Today they all go to one
+queue; a lead manually assigns each one. It's slow and error-prone.
+
+## Solution options
+
+| Approach | Effort | Maintainable? |
+| --- | --- | --- |
+| Manual assignment | Low | No — doesn't scale |
+| Assignment Rules | Low | Limited logic |
+| Record-Triggered Flow | Medium | Yes — flexible |
+
+## Recommended approach
+
+A **record-triggered Flow** on Case create: read the account's region, then
+assign the owner to the matching regional queue.
+
+## Implementation walkthrough
+
+<Steps>
+  <Step title="Create the queues">
+    Create one queue per region (e.g. *Support — EMEA*) and add the right agents.
+  </Step>
+  <Step title="Build the flow">
+    New **Record-Triggered Flow** on Case, *A record is created*. Add a Decision
+    on `Account.Region`, then an Update Records element setting `OwnerId` to the
+    matching queue.
+  </Step>
+</Steps>
+
+<Callout type="tip" title="Use Omni-Channel next">
+  Once cases reach the right queue, layer Omni-Channel routing to push them to
+  the next available agent automatically.
+</Callout>
+
+## When to use this
+
+- **Use it if** your routing logic depends on record data (region, product, tier).
+- **Avoid it if** simple Assignment Rules already cover your needs.
+
+## Resources
+
+- [Trailhead: Record-Triggered Flows](https://trailhead.salesforce.com/)

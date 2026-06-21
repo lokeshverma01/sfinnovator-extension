@@ -1,0 +1,46 @@
+---
+/**
+ * PostListItem — a scannable list ROW for a blog post, inspired by the
+ * Salesforce Known Issues list: type label · title · description · status
+ * (debugging) · category · date. Used on /blog, related posts, category/tag
+ * pages, and search results.
+ *
+ * Props:
+ *   post: CollectionEntry<"blog">
+ * Used by: blog index, [...slug] related, category/tag pages
+ */
+import type { CollectionEntry } from "astro:content";
+import StatusBadge from "@/components/post/StatusBadge.astro";
+import { withBase } from "@/lib/paths";
+import { formatDate } from "@/lib/utils";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+const { post } = Astro.props;
+const d = post.data;
+
+const typeLabel: Record<string, string> = {
+  implementation: "Implementation",
+  "use-case": "Use case",
+  debugging: "Debugging",
+};
+---
+
+<a
+  href={withBase(`/blog/${post.slug}`)}
+  class="group block rounded border border-border bg-card p-5 transition-colors hover:border-accent"
+>
+  <div class="mb-2 flex flex-wrap items-center gap-2">
+    <span class="rounded bg-tag-bg px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-tag-text">
+      {typeLabel[d.postType]}
+    </span>
+    {d.postType === "debugging" && <StatusBadge status={d.status} size="sm" />}
+    <span class="text-[13px] text-muted">{d.category.join(" · ")}</span>
+    <span class="ml-auto text-[13px] text-muted">{formatDate(d.publishDate)}</span>
+  </div>
+  <h3 class="text-[18px] font-semibold leading-snug tracking-tight group-hover:text-accent">
+    {d.title}
+  </h3>
+  <p class="mt-1 text-[15px] leading-relaxed text-muted">{d.description}</p>
+</a>

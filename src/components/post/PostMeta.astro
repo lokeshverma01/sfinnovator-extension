@@ -1,0 +1,61 @@
+---
+/**
+ * PostMeta — the byline row under a post title: author · dates · reading time ·
+ * difficulty · categories. Shows BOTH publish and updated dates (updated dates
+ * matter for fast-aging Salesforce content).
+ *
+ * Props:
+ *   author string
+ *   publishDate Date
+ *   updatedDate? Date
+ *   readingMinutes number
+ *   difficulty string
+ *   categories string[]
+ * Used by: PostLayout.astro
+ */
+import { formatDate } from "@/lib/utils";
+import { withBase } from "@/lib/paths";
+import { slugify } from "@/lib/utils";
+
+interface Props {
+  author: string;
+  publishDate: Date;
+  updatedDate?: Date;
+  readingMinutes: number;
+  difficulty: string;
+  categories: string[];
+}
+const { author, publishDate, updatedDate, readingMinutes, difficulty, categories } =
+  Astro.props;
+---
+
+<div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[14px] text-muted">
+  <span class="font-medium text-text">{author}</span>
+  <span aria-hidden="true">·</span>
+  <span>{formatDate(publishDate)}</span>
+  {
+    updatedDate && (
+      <>
+        <span aria-hidden="true">·</span>
+        <span>Updated {formatDate(updatedDate)}</span>
+      </>
+    )
+  }
+  <span aria-hidden="true">·</span>
+  <span>{readingMinutes} min read</span>
+  <span aria-hidden="true">·</span>
+  <span>{difficulty}</span>
+
+  <span class="flex flex-wrap gap-2">
+    {
+      categories.map((c) => (
+        <a
+          href={withBase(`/blog/category/${slugify(c)}`)}
+          class="rounded-full bg-tag-bg px-2.5 py-0.5 text-xs font-semibold text-tag-text transition-opacity hover:opacity-80"
+        >
+          {c}
+        </a>
+      ))
+    }
+  </span>
+</div>

@@ -1,0 +1,24 @@
+---
+/**
+ * /blog — the blog landing (page 1 of the listing).
+ *
+ * Posts live at /blog/<slug>; subsequent listing pages live at /blog/page/<n>.
+ * Splitting page 1 here (a static route) avoids any collision with the
+ * /blog/[...slug] post route.
+ */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogIndex from "@/components/BlogIndex.astro";
+import { getPublishedPosts, POSTS_PER_PAGE } from "@/lib/posts";
+
+const all = await getPublishedPosts();
+const posts = all.slice(0, POSTS_PER_PAGE);
+const lastPage = Math.max(1, Math.ceil(all.length / POSTS_PER_PAGE));
+---
+
+<BaseLayout
+  title="Blog"
+  description="Salesforce implementations, use-case scenarios, and error-debugging write-ups you can learn from and validate."
+  path="/blog"
+>
+  <BlogIndex posts={posts} currentPage={1} lastPage={lastPage} />
+</BaseLayout>

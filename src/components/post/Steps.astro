@@ -1,0 +1,57 @@
+---
+/**
+ * Steps — an ordered, visually-numbered list of steps for tutorials.
+ * Wrap one or more <Step> children. The numbering is automatic via CSS counters.
+ *
+ * Usage in an .mdx post:
+ *   import { Steps, Step } from "@/components/post/Steps.astro"; // (see note)
+ *   <Steps>
+ *     <Step title="Create the object">Go to Setup → Object Manager…</Step>
+ *     <Step title="Add the field">…</Step>
+ *   </Steps>
+ *
+ * NOTE: Astro exports one component per file, so import Step from its own file:
+ *   import Steps from "@/components/post/Steps.astro";
+ *   import Step  from "@/components/post/Step.astro";
+ */
+---
+
+<div class="steps my-6 [counter-reset:step]">
+  <slot />
+</div>
+
+<style>
+  /* Each Step renders a number bubble via a CSS counter so authors never
+     hand-number steps (reorder-safe). */
+  .steps :global(.step) {
+    counter-increment: step;
+    position: relative;
+    padding-left: 3rem;
+    padding-bottom: 1.25rem;
+  }
+  .steps :global(.step)::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  /* Vertical connector line between steps. */
+  .steps :global(.step:not(:last-child))::after {
+    content: "";
+    position: absolute;
+    left: 1rem;
+    top: 2.25rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+</style>

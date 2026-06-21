@@ -1,0 +1,47 @@
+---
+/**
+ * /blog/tag/[tag] — all posts sharing a topic tag (Flow, Apex, LWC, …).
+ * One static page per tag in use. Links come from the post-footer tag chips.
+ */
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostListItem from "@/components/PostListItem.astro";
+import { getPublishedPosts } from "@/lib/posts";
+import { slugify } from "@/lib/utils";
+
+export const getStaticPaths = (async () => {
+  const all = await getPublishedPosts();
+  const byTag = new Map<string, { label: string; posts: typeof all }>();
+  for (const post of all) {
+    for (const tag of post.data.tags) {
+      const slug = slugify(tag);
+      if (!byTag.has(slug)) byTag.set(slug, { label: tag, posts: [] });
+      byTag.get(slug)!.posts.push(post);
+    }
+  }
+  return [...byTag.entries()].map(([slug, { label, posts }]) => ({
+    params: { tag: slug },
+    props: { label, posts },
+  }));
+}) satisfies GetStaticPaths;
+
+const { label, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`#${label}`}
+  description={`Salesforce posts tagged ${label}.`}
+  path={`/blog/tag/${slugify(label)}`}
+>
+  <section class="px-6 py-12">
+    <div class="mx-auto max-w-content">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">Tag</p>
+      <h1 class="mb-8 text-[clamp(28px,4vw,40px)] font-extrabold tracking-tight">
+        #{label} <span class="text-muted">({posts.length})</span>
+      </h1>
+      <div class="flex flex-col gap-3">
+        {posts.map((post) => <PostListItem post={post} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

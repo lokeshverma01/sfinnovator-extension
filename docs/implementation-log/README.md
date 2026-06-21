@@ -19,6 +19,7 @@ This is the **build journal** for SF Innovator. It records, step-by-step, *exact
 | 0002 | [GitHub Repo + GitHub Pages Deploy](./0002-github-pages-deploy.md) | Phase 0 (CI) | ✅ done |
 | 0003 | [Branch Protection on main](./0003-branch-protection.md) | Phase 0 (governance) | ✅ done |
 | 0004 | [SEO Hardening](./0004-seo-hardening.md) | Phase 2 | ✅ done |
+| 0005 | [Content System (templates, blog, search, portfolio)](./0005-content-system.md) | Phase 3 | ✅ done |
 
 ---
 
