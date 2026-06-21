@@ -1,0 +1,128 @@
+---
+/**
+ * BlogIndex — the shared UI for the paginated blog listing.
+ *
+ * Rendered by BOTH /blog (page 1) and /blog/page/[n] (pages 2+), so the markup
+ * lives in one place. Shows: heading, search box, client-side type filter, the
+ * Known-Issues-style row list, and prev/next pagination.
+ *
+ * Props:
+ *   posts       — the posts for THIS page
+ *   currentPage — 1-based page number
+ *   lastPage    — total number of pages
+ * Used by: src/pages/blog/index.astro, src/pages/blog/page/[page].astro
+ */
+import type { CollectionEntry } from "astro:content";
+import PostListItem from "@/components/PostListItem.astro";
+import SearchBox from "@/components/SearchBox.astro";
+import { withBase } from "@/lib/paths";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+  currentPage: number;
+  lastPage: number;
+}
+const { posts, currentPage, lastPage } = Astro.props;
+
+const filters = [
+  { key: "all", label: "All" },
+  { key: "implementation", label: "Implementation" },
+  { key: "use-case", label: "Use case" },
+  { key: "debugging", label: "Debugging" },
+];
+
+// Pagination targets: page 1 is /blog; pages 2+ are /blog/page/N.
+const prevHref =
+  currentPage === 2 ? withBase("/blog") : withBase(`/blog/page/${currentPage - 1}`);
+const nextHref = withBase(`/blog/page/${currentPage + 1}`);
+---
+
+<section class="px-6 py-12">
+  <div class="mx-auto max-w-content">
+    <header class="mb-8">
+      <h1 class="mb-2 text-[clamp(28px,4vw,40px)] font-extrabold tracking-tight">Blog</h1>
+      <p class="text-muted">
+        Implementations, use cases, and debugging — learn Salesforce by building it.
+      </p>
+    </header>
+
+    <div class="mb-6"><SearchBox /></div>
+
+    <div
+      class="mb-6 flex flex-wrap gap-2"
+      id="type-filter"
+      role="group"
+      aria-label="Filter by type"
+    >
+      {
+        filters.map((f) => (
+          <button
+            type="button"
+            data-filter={f.key}
+            class="filter-btn rounded-full border border-border px-3.5 py-1.5 text-sm font-medium text-muted transition-colors hover:border-accent data-[active]:border-accent data-[active]:bg-accent data-[active]:text-accent-contrast"
+            data-active={f.key === "all" ? "" : undefined}
+          >
+            {f.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="flex flex-col gap-3" id="post-list">
+      {
+        posts.map((post) => (
+          <div class="post-row" data-type={post.data.postType}>
+            <PostListItem post={post} />
+          </div>
+        ))
+      }
+    </div>
+
+    {
+      lastPage > 1 && (
+        <nav class="mt-10 flex items-center justify-between" aria-label="Pagination">
+          {currentPage > 1 ? (
+            <a
+              href={prevHref}
+              class="rounded border border-border px-4 py-2 text-sm font-medium transition-colors hover:border-accent"
+            >
+              ← Newer
+            </a>
+          ) : (
+            <span class="px-4 py-2 text-sm text-muted opacity-40">← Newer</span>
+          )}
+          <span class="text-sm text-muted">
+            Page {currentPage} of {lastPage}
+          </span>
+          {currentPage < lastPage ? (
+            <a
+              href={nextHref}
+              class="rounded border border-border px-4 py-2 text-sm font-medium transition-colors hover:border-accent"
+            >
+              Older →
+            </a>
+          ) : (
+            <span class="px-4 py-2 text-sm text-muted opacity-40">Older →</span>
+          )}
+        </nav>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  // Client-side type filter: toggles row visibility only (no data fetching).
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+  const rows = document.querySelectorAll<HTMLElement>(".post-row");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const filter = btn.dataset.filter;
+      buttons.forEach((b) => b.removeAttribute("data-active"));
+      btn.setAttribute("data-active", "");
+      rows.forEach((row) => {
+        const show = filter === "all" || row.dataset.type === filter;
+        row.style.display = show ? "" : "none";
+      });
+    });
+  });
+</script>

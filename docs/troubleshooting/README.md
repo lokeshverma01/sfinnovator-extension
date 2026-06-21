@@ -66,7 +66,23 @@ _To be documented when we build the theme toggle (Phase 1)._
 _To be documented when we wire Tailwind (Phase 0)._
 
 ### post-missing
-_To be documented when we add content collections (Phase 1)._
+**Symptom:** A blog post doesn't show up on the site after adding it.
+**Component/area:** Content collection — `src/content/blog/<slug>.mdx`, schema in `src/content/config.ts`.
+**How to debug (in order):**
+1. Is `draft: true`? Drafts are excluded from production builds. Set `draft: false`.
+2. Is `publishDate` a valid `YYYY-MM-DD`? An invalid date fails the schema.
+3. Did the build succeed? A schema error (missing/too-long field) aborts the build and names the field — fix it and re-push.
+4. File must be in `src/content/blog/` and end in `.mdx` (or `.md`).
+**Common root causes & fixes:**
+- Required field missing for the post's `postType` (e.g. `symptom`/`rootCauseSummary` for debugging, `scenario` for use-case) → add it.
+- `description` outside 50–160 chars, or `title` over 70 → adjust length.
+- Wrong `postType` value → must be exactly `implementation`, `use-case`, or `debugging`.
+**Verified fix:** post appears on `/blog`, its category/tag pages, search, and RSS after a successful build.
+
+---
+
+**Symptom:** Site search returns nothing during local `pnpm dev`.
+**Not a bug** — Pagefind builds its index at the END of `pnpm build` (against `dist/`), so search is empty in `astro dev`. Test it with `pnpm build && pnpm preview`. On the deployed site it always works (CI runs the full `build`).
 
 ### seo-issues
 **Symptom:** Social share shows no image / broken image (Facebook, LinkedIn, X, Slack).

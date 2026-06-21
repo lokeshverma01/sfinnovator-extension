@@ -1,0 +1,74 @@
+---
+/**
+ * /portfolio/[...slug] — detail page for one portfolio solution.
+ * Renders the entry's Markdown body in the .prose style, with a header showing
+ * tech chips and demo/source links, plus an optional link to the related blog post.
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { withBase } from "@/lib/paths";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("portfolio", ({ data }) =>
+    import.meta.env.PROD ? !data.draft : true,
+  );
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const d = entry.data;
+---
+
+<BaseLayout
+  title={d.title}
+  description={d.description}
+  path={`/portfolio/${entry.slug}`}
+  image={d.image}
+>
+  <article class="px-6 py-12" data-pagefind-body>
+    <div class="mx-auto max-w-reading">
+      <nav class="mb-6 text-sm text-muted" aria-label="Breadcrumb">
+        <a href={withBase("/")} class="hover:text-text">Home</a>
+        <span aria-hidden="true"> / </span>
+        <a href={withBase("/portfolio")} class="hover:text-text">Portfolio</a>
+      </nav>
+
+      <header class="mb-8">
+        <h1 class="mb-3 text-[clamp(28px,4vw,42px)] font-extrabold tracking-tight">{d.title}</h1>
+        <p class="mb-4 text-[19px] text-muted">{d.description}</p>
+
+        {
+          d.tech.length > 0 && (
+            <div class="mb-4 flex flex-wrap gap-2">
+              {d.tech.map((t) => (
+                <span class="rounded-full bg-tag-bg px-2.5 py-0.5 text-xs font-semibold text-tag-text">
+                  {t}
+                </span>
+              ))}
+            </div>
+          )
+        }
+
+        <div class="flex flex-wrap gap-4 text-[15px] font-semibold">
+          {d.demoUrl && <a href={d.demoUrl} class="text-accent hover:underline">Live demo ↗</a>}
+          {d.repoUrl && <a href={d.repoUrl} class="text-accent hover:underline">Source code ↗</a>}
+          {
+            d.relatedPost && (
+              <a href={withBase(`/blog/${d.relatedPost}`)} class="text-accent hover:underline">
+                Read the write-up →
+              </a>
+            )
+          }
+        </div>
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

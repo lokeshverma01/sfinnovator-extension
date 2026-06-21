@@ -1,0 +1,50 @@
+---
+/**
+ * /portfolio — grid of portfolio solutions (tiles), ordered by `order` then date.
+ * Driven by the `portfolio` content collection — add an .mdx file to add a tile;
+ * no code changes needed.
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PortfolioTile from "@/components/PortfolioTile.astro";
+
+const entries = (
+  await getCollection("portfolio", ({ data }) =>
+    import.meta.env.PROD ? !data.draft : true,
+  )
+).sort(
+  (a, b) =>
+    a.data.order - b.data.order ||
+    b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+---
+
+<BaseLayout
+  title="Portfolio"
+  description="Salesforce solutions I've built — explore, try the live demos, and validate the implementations."
+  path="/portfolio"
+>
+  <section class="px-6 py-12">
+    <div class="mx-auto max-w-content">
+      <header class="mb-8">
+        <h1 class="mb-2 text-[clamp(28px,4vw,40px)] font-extrabold tracking-tight">Portfolio</h1>
+        <p class="max-w-reading text-muted">
+          Solutions I've built end-to-end. Open one to see how it works, try the live
+          demo, and validate it yourself.
+        </p>
+      </header>
+
+      {
+        entries.length > 0 ? (
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {entries.map((entry) => (
+              <PortfolioTile entry={entry} />
+            ))}
+          </div>
+        ) : (
+          <p class="text-muted">Portfolio entries are coming soon.</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

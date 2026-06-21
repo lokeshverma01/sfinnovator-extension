@@ -1,0 +1,49 @@
+---
+/**
+ * /blog/category/[category] — all posts in one role-based category
+ * (Admin, Developer, Architect, Consultant). One static page per category that
+ * actually has posts. Links come from PostMeta category chips.
+ */
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostListItem from "@/components/PostListItem.astro";
+import { getPublishedPosts } from "@/lib/posts";
+import { slugify } from "@/lib/utils";
+
+export const getStaticPaths = (async () => {
+  const all = await getPublishedPosts();
+  // Map each category slug → its label + matching posts.
+  const byCategory = new Map<string, { label: string; posts: typeof all }>();
+  for (const post of all) {
+    for (const cat of post.data.category) {
+      const slug = slugify(cat);
+      if (!byCategory.has(slug)) byCategory.set(slug, { label: cat, posts: [] });
+      byCategory.get(slug)!.posts.push(post);
+    }
+  }
+  return [...byCategory.entries()].map(([slug, { label, posts }]) => ({
+    params: { category: slug },
+    props: { label, posts },
+  }));
+}) satisfies GetStaticPaths;
+
+const { label, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`${label} posts`}
+  description={`Salesforce posts for ${label}s — implementations, use cases, and debugging.`}
+  path={`/blog/category/${slugify(label)}`}
+>
+  <section class="px-6 py-12">
+    <div class="mx-auto max-w-content">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-wide text-accent">Category</p>
+      <h1 class="mb-8 text-[clamp(28px,4vw,40px)] font-extrabold tracking-tight">
+        {label} <span class="text-muted">({posts.length})</span>
+      </h1>
+      <div class="flex flex-col gap-3">
+        {posts.map((post) => <PostListItem post={post} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

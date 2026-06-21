@@ -1,0 +1,31 @@
+---
+/**
+ * StatusBadge — Known-Issues-style status pill for debugging posts.
+ * Reused in the post header, the blog list rows, and inside post bodies.
+ *
+ * Props:
+ *   status "Investigating" | "Workaround Available" | "Resolved"
+ *   size?  "sm" | "md"  (default "md")
+ */
+interface Props {
+  status: "Investigating" | "Workaround Available" | "Resolved";
+  size?: "sm" | "md";
+}
+const { status, size = "md" } = Astro.props;
+
+const map: Record<string, { bg: string; text: string; dot: string }> = {
+  Investigating: { bg: "#fdf0e6", text: "#9a5b00", dot: "#d9821e" },
+  "Workaround Available": { bg: "#fef7e0", text: "#7a5c00", dot: "#caa000" },
+  Resolved: { bg: "#e7f6ec", text: "#1c6b3c", dot: "#1c8a4d" },
+};
+const c = map[status] ?? map.Resolved;
+const pad = size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs";
+---
+
+<span
+  class={`inline-flex items-center gap-1.5 rounded-full font-semibold ${pad}`}
+  style={`background:${c.bg}; color:${c.text};`}
+>
+  <span class="inline-block h-1.5 w-1.5 rounded-full" style={`background:${c.dot}`} aria-hidden="true"></span>
+  {status}
+</span>

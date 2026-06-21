@@ -1,0 +1,20 @@
+---
+/**
+ * Step — a single step inside <Steps>. Auto-numbered by the parent's CSS counter.
+ *
+ * Props:
+ *   title? string — bold step heading
+ * Used by: post bodies, wrapped in <Steps> (src/components/post/Steps.astro)
+ */
+interface Props {
+  title?: string;
+}
+const { title } = Astro.props;
+---
+
+<div class="step">
+  {title && <p class="mb-1 font-bold text-text">{title}</p>}
+  <div class="text-[15px] leading-relaxed text-text [&>*+*]:mt-2">
+    <slot />
+  </div>
+</div>

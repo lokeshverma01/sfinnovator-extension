@@ -1,0 +1,148 @@
+---
+/**
+ * PostLayout — the master template for a single blog post (ALL three types).
+ *
+ * Built ONCE; you never edit it to publish. It reads a post's validated
+ * frontmatter (`data`) + rendered `headings` and lays out a consistent page:
+ *
+ *   ┌ breadcrumb
+ *   │ category eyebrow + H1 title
+ *   │ PostMeta (author · dates · reading time · difficulty · categories)
+ *   │ StructuredMeta (type-specific info panel)
+ *   ├ [aside] TableOfContents (sticky, large screens)
+ *   │ <article class="prose"> … your Markdown body (<slot/>) … </article>
+ *   │ tags
+ *   └ (related posts handled by the route if provided)
+ *
+ * SEO: passes article metadata to BaseLayout → BaseHead emits BlogPosting
+ * JSON-LD, article:* OG tags, and breadcrumbs.
+ *
+ * Props:
+ *   data         — frontmatter (discriminated union from content/config.ts)
+ *   slug         — post slug (for canonical path)
+ *   headings     — from entry.render(), for the TOC
+ *   readingMinutes — computed in the route from the rendered body
+ * Used by: src/pages/blog/[...slug].astro
+ */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostMeta from "@/components/post/PostMeta.astro";
+import StructuredMeta from "@/components/post/StructuredMeta.astro";
+import TableOfContents from "@/components/post/TableOfContents.astro";
+import { siteConfig } from "@/lib/siteConfig";
+import { withBase, } from "@/lib/paths";
+import { slugify } from "@/lib/utils";
+
+interface Props {
+  data: any;
+  slug: string;
+  headings: { depth: number; slug: string; text: string }[];
+  readingMinutes: number;
+}
+const { data, slug, headings, readingMinutes } = Astro.props;
+
+const path = `/blog/${slug}`;
+const author = data.author ?? siteConfig.author.name;
+const primaryCategory = data.category[0];
+
+// Human-friendly label for the post type (eyebrow).
+const typeLabel: Record<string, string> = {
+  implementation: "Implementation",
+  "use-case": "Use case",
+  debugging: "Debugging",
+};
+
+const showToc = data.showToc !== false;
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  path={path}
+  image={data.ogImage ?? data.featuredImage}
+  type="article"
+  article={{
+    publishDate: data.publishDate,
+    updatedDate: data.updatedDate,
+    section: primaryCategory,
+    tags: data.tags,
+  }}
+  breadcrumbs={[
+    { name: "Home", path: "/" },
+    { name: "Blog", path: "/blog" },
+    { name: data.title, path },
+  ]}
+>
+  <article class="px-6 py-12" data-pagefind-body>
+    <div class="mx-auto max-w-content">
+      <!-- Breadcrumb -->
+      <nav class="mb-6 text-sm text-muted" aria-label="Breadcrumb">
+        <a href={withBase("/")} class="hover:text-text">Home</a>
+        <span aria-hidden="true"> / </span>
+        <a href={withBase("/blog")} class="hover:text-text">Blog</a>
+        <span aria-hidden="true"> / </span>
+        <span class="text-text">{typeLabel[data.postType]}</span>
+      </nav>
+
+      <!-- Header -->
+      <header class="mb-8">
+        <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-accent">
+          {typeLabel[data.postType]}
+        </p>
+        <h1 class="mb-4 text-[clamp(30px,4.5vw,46px)] font-extrabold leading-[1.12] tracking-tight">
+          {data.title}
+        </h1>
+        <p class="mb-4 max-w-reading text-[19px] text-muted">{data.description}</p>
+        <PostMeta
+          author={author}
+          publishDate={data.publishDate}
+          updatedDate={data.updatedDate}
+          readingMinutes={readingMinutes}
+          difficulty={data.difficulty}
+          categories={data.category}
+        />
+      </header>
+
+      <!-- Body grid: article + optional sticky TOC -->
+      <div class={showToc ? "lg:grid lg:grid-cols-[1fr_240px] lg:gap-12" : ""}>
+        <div class="min-w-0 max-w-reading">
+          <!-- Type-specific structured panel -->
+          <StructuredMeta data={data} />
+
+          <!-- The author's Markdown body -->
+          <div class="prose">
+            <slot />
+          </div>
+
+          <!-- Tags -->
+          {
+            data.tags.length > 0 && (
+              <div class="mt-10 flex flex-wrap gap-2 border-t border-border pt-6">
+                {data.tags.map((t: string) => (
+                  <a
+                    href={withBase(`/blog/tag/${slugify(t)}`)}
+                    class="rounded-full border border-border px-3 py-1 text-sm text-muted transition-colors hover:border-accent hover:text-text"
+                  >
+                    #{t}
+                  </a>
+                ))}
+              </div>
+            )
+          }
+        </div>
+
+        {
+          showToc && (
+            <aside class="hidden lg:block">
+              <div class="sticky top-24">
+                <TableOfContents headings={headings} />
+              </div>
+            </aside>
+          )
+        }
+      </div>
+
+      <!-- Related posts slot (route fills this in) -->
+      <slot name="related" />
+    </div>
+  </article>
+</BaseLayout>

@@ -2,55 +2,19 @@
 /**
  * index.astro — the landing page (home).
  *
- * Sections (per the approved mockup): hero with eyebrow + headline + subline +
- * two CTAs, then a "Latest posts" grid of PostCards.
- *
- * Posts are read from the `blog` content collection. While no real posts exist
- * yet, we fall back to placeholder cards so the layout is visible. Once you add
- * .mdx files to src/content/blog/, they replace the placeholders automatically.
+ * Sections: hero with eyebrow + headline + subline + two CTAs, a search box,
+ * then a "Latest posts" grid of the 3 newest published posts (real content from
+ * the blog collection). When there are no posts yet, the grid is simply hidden.
  */
-import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostCard from "@/components/PostCard.astro";
+import SearchBox from "@/components/SearchBox.astro";
+import { getPublishedPosts, postReadingTime } from "@/lib/posts";
 import { formatDate } from "@/lib/utils";
 import { withBase } from "@/lib/paths";
 
-// Pull published (non-draft) posts, newest first, max 3 for the landing grid.
-const posts = (await getCollection("blog", ({ data }) => !data.draft))
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-  .slice(0, 3);
-
-// Placeholder cards shown only until real posts exist (matches the mockup).
-const placeholders = [
-  {
-    title: "Setting up Approval Processes end-to-end",
-    excerpt:
-      "A complete walkthrough of building a multi-step approval flow with the out-of-the-box tools.",
-    category: "Implementation",
-    date: "Jun 18, 2026",
-    minutes: 8,
-    href: "/blog",
-  },
-  {
-    title: "Resolving the Apex CPU Time Limit error",
-    excerpt:
-      "Root cause analysis of a governor limit breach and three ways to refactor around it.",
-    category: "Debugging",
-    date: "Jun 12, 2026",
-    minutes: 6,
-    href: "/blog",
-  },
-  {
-    title: "Auto-assigning cases by region with Flow",
-    excerpt:
-      "A real scenario: routing inbound cases to the right queue without a single line of code.",
-    category: "Use case",
-    date: "Jun 05, 2026",
-    minutes: 5,
-    href: "/blog",
-  },
-];
-
+// 3 newest published posts for the landing grid.
+const posts = (await getPublishedPosts()).slice(0, 3);
 const hasPosts = posts.length > 0;
 ---
 
@@ -90,42 +54,40 @@ const hasPosts = posts.length > 0;
           View portfolio
         </a>
       </div>
+
+      <!-- Search -->
+      <div class="mx-auto mt-10 max-w-[560px] text-left">
+        <SearchBox placeholder="Search posts — e.g. 'CPU time limit'…" />
+      </div>
     </div>
   </section>
 
   <!-- LATEST POSTS -->
-  <section class="px-6 pb-24 pt-16">
-    <div class="mx-auto max-w-content">
-      <div class="mb-8 flex items-baseline justify-between">
-        <h2 class="text-2xl font-bold tracking-tight">Latest posts</h2>
-        <a href={withBase("/blog")} class="text-[14px] text-accent">View all →</a>
-      </div>
+  {
+    hasPosts && (
+      <section class="px-6 pb-24 pt-8">
+        <div class="mx-auto max-w-content">
+          <div class="mb-8 flex items-baseline justify-between">
+            <h2 class="text-2xl font-bold tracking-tight">Latest posts</h2>
+            <a href={withBase("/blog")} class="text-[14px] text-accent">
+              View all →
+            </a>
+          </div>
 
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {
-          hasPosts
-            ? posts.map((post) => (
-                <PostCard
-                  title={post.data.title}
-                  excerpt={post.data.description}
-                  category={post.data.category}
-                  date={formatDate(post.data.publishDate)}
-                  minutes={5}
-                  href={withBase(`/blog/${post.slug}`)}
-                />
-              ))
-            : placeholders.map((p) => (
-                <PostCard
-                  title={p.title}
-                  excerpt={p.excerpt}
-                  category={p.category}
-                  date={p.date}
-                  minutes={p.minutes}
-                  href={withBase(p.href)}
-                />
-              ))
-        }
-      </div>
-    </div>
-  </section>
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {posts.map((post) => (
+              <PostCard
+                title={post.data.title}
+                excerpt={post.data.description}
+                category={post.data.category[0]}
+                date={formatDate(post.data.publishDate)}
+                minutes={postReadingTime(post)}
+                href={withBase(`/blog/${post.slug}`)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>

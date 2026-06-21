@@ -1,0 +1,63 @@
+---
+/**
+ * /blog/[...slug] — renders one blog post.
+ *
+ * getStaticPaths() generates one static page per published post at build time
+ * (no server, no database). Each page:
+ *   - renders the post's MDX body with body components auto-injected
+ *     (mdxComponents) so authors never write import lines,
+ *   - computes reading time from the body,
+ *   - shows related posts,
+ *   - hands frontmatter + headings to PostLayout for consistent layout + SEO.
+ */
+import { getCollection } from "astro:content";
+import PostLayout from "@/layouts/PostLayout.astro";
+import PostListItem from "@/components/PostListItem.astro";
+import { mdxComponents } from "@/components/post/mdxComponents";
+import {
+  getPublishedPosts,
+  getRelatedPosts,
+  postReadingTime,
+} from "@/lib/posts";
+
+export async function getStaticPaths() {
+  // Build a page for every post (drafts included in dev, excluded in prod build).
+  const posts = await getCollection("blog", ({ data }) =>
+    import.meta.env.PROD ? data.draft === false : true,
+  );
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+
+const all = await getPublishedPosts();
+const related = getRelatedPosts(post, all, 3);
+const readingMinutes = postReadingTime(post);
+---
+
+<PostLayout
+  data={post.data}
+  slug={post.slug}
+  headings={headings}
+  readingMinutes={readingMinutes}
+>
+  {/* Body components are auto-available — authors write <Callout>, <Steps>, etc. */}
+  <Content components={mdxComponents} />
+
+  {
+    related.length > 0 && (
+      <section slot="related" class="mt-16 border-t border-border pt-10">
+        <h2 class="mb-6 text-xl font-bold tracking-tight">Related posts</h2>
+        <div class="flex flex-col gap-3">
+          {related.map((p) => (
+            <PostListItem post={p} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</PostLayout>

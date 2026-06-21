@@ -27,7 +27,8 @@ export async function GET(context: APIContext) {
       title: post.data.title,
       description: post.data.description,
       pubDate: post.data.publishDate,
-      categories: [post.data.category, ...post.data.tags],
+      // category is now an array of role-categories; merge with topic tags.
+      categories: [...post.data.category, ...post.data.tags],
       link: `/blog/${post.slug}/`,
     })),
     customData: `<language>${siteConfig.locale.replace("_", "-")}</language>`,

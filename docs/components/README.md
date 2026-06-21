@@ -13,9 +13,23 @@ Every **reusable** component in the site is documented here so it can be underst
 | Header | `src/components/Header.astro` | Top nav + logo + theme toggle | BaseLayout | ✅ active |
 | Footer | `src/components/Footer.astro` | Site footer + social links | BaseLayout | ✅ active |
 | ThemeToggle | `src/components/ThemeToggle.astro` | Light/dark switch button + persistence | Header | ✅ active |
-| PostCard | `src/components/PostCard.astro` | Blog summary card (tag, title, excerpt, meta) | landing, blog index | ✅ active |
+| PostCard | `src/components/PostCard.astro` | Blog summary card (tag, title, excerpt, meta) | home | ✅ active |
+| PostListItem | `src/components/PostListItem.astro` | Known-Issues-style scannable row | blog index, category/tag, related | ✅ active |
+| BlogIndex | `src/components/BlogIndex.astro` | Shared paginated listing UI (search, filter, list, pager) | /blog, /blog/page/[n] | ✅ active |
+| SearchBox | `src/components/SearchBox.astro` | Pagefind static search input (lazy-loaded) | home, blog index | ✅ active |
+| PortfolioTile | `src/components/PortfolioTile.astro` | Portfolio solution card | /portfolio | ✅ active |
+| PostLayout | `src/layouts/PostLayout.astro` | Master template for all 3 post types | blog/[...slug] | ✅ active |
+| post/Callout | `src/components/post/Callout.astro` | note/tip/warning/error box (MDX body) | post bodies | ✅ active |
+| post/Steps + Step | `src/components/post/Steps.astro`, `Step.astro` | Auto-numbered tutorial steps (MDX body) | post bodies | ✅ active |
+| post/Figure | `src/components/post/Figure.astro` | Image + caption (MDX body) | post bodies | ✅ active |
+| post/StatusBadge | `src/components/post/StatusBadge.astro` | Known-Issues status pill | debugging posts, list rows | ✅ active |
+| post/PostMeta | `src/components/post/PostMeta.astro` | Byline: author/dates/reading time/categories | PostLayout | ✅ active |
+| post/StructuredMeta | `src/components/post/StructuredMeta.astro` | Per-type structured info panel | PostLayout | ✅ active |
+| post/TableOfContents | `src/components/post/TableOfContents.astro` | Auto TOC from headings | PostLayout | ✅ active |
 
-> Each component carries a header comment documenting its props and usage (per [CONTRIBUTING.md](../../CONTRIBUTING.md)). Detailed per-component docs can be expanded from the template below as the API grows.
+**Authoring components** (auto-injected into MDX, no import needed): `Callout`, `Steps`, `Step`, `Figure`, `StatusBadge` — see the registry in `src/components/post/mdxComponents.ts` and the [publishing guide](../publishing-guide.md).
+
+> Each component carries a header comment documenting its props and usage (per [CONTRIBUTING.md](../../CONTRIBUTING.md)).
 
 ---
 

@@ -1,0 +1,48 @@
+---
+/**
+ * TableOfContents — auto-generated from a post's headings.
+ *
+ * Astro gives every rendered Markdown entry a `headings` array via render().
+ * We render H2s (and their H3 children) as anchor links. Hidden on small
+ * screens; sticky on large screens beside the article.
+ *
+ * Props:
+ *   headings: { depth: number; slug: string; text: string }[]
+ * Used by: PostLayout.astro
+ */
+import { withBase } from "@/lib/paths";
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+interface Props {
+  headings: Heading[];
+}
+const { headings } = Astro.props;
+
+// Only show H2/H3 in the TOC (H1 is the title; H4+ is too granular).
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  toc.length > 0 && (
+    <nav aria-label="Table of contents" class="text-sm">
+      <p class="mb-3 font-bold uppercase tracking-wide text-muted">On this page</p>
+      <ul class="space-y-2 border-l border-border">
+        {toc.map((h) => (
+          <li class={h.depth === 3 ? "pl-7" : "pl-4"}>
+            <a
+              href={`#${h.slug}`}
+              class="block border-l-2 border-transparent text-muted transition-colors hover:text-text"
+              style="margin-left:-1px;"
+            >
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

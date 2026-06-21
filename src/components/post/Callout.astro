@@ -1,0 +1,43 @@
+---
+/**
+ * Callout — a styled note/tip/warning/error box for use INSIDE post bodies.
+ *
+ * Usage in an .mdx post:
+ *   import Callout from "@/components/post/Callout.astro";
+ *   <Callout type="warning" title="Governor limits">
+ *     Bulk-safe your code or you'll hit CPU limits.
+ *   </Callout>
+ *
+ * Props:
+ *   type?  "note" | "tip" | "warning" | "error"   (default "note")
+ *   title? string                                  (optional heading)
+ */
+interface Props {
+  type?: "note" | "tip" | "warning" | "error";
+  title?: string;
+}
+const { type = "note", title } = Astro.props;
+
+// Token-driven color per type (no hard-coded hex; uses CSS vars + accents).
+const styles: Record<string, { border: string; icon: string; label: string }> = {
+  note: { border: "var(--accent)", icon: "ℹ", label: "Note" },
+  tip: { border: "#1c8a4d", icon: "✓", label: "Tip" },
+  warning: { border: "#b8860b", icon: "▲", label: "Warning" },
+  error: { border: "#c0392b", icon: "✕", label: "Error" },
+};
+const s = styles[type] ?? styles.note;
+---
+
+<aside
+  class="my-6 rounded border border-border bg-bg-subtle p-4"
+  style={`border-left: 4px solid ${s.border};`}
+  role="note"
+>
+  <p class="mb-1 flex items-center gap-2 text-sm font-bold" style={`color:${s.border}`}>
+    <span aria-hidden="true">{s.icon}</span>
+    <span>{title ?? s.label}</span>
+  </p>
+  <div class="text-[15px] leading-relaxed text-text [&>*+*]:mt-2">
+    <slot />
+  </div>
+</aside>

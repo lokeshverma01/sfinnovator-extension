@@ -1,0 +1,31 @@
+---
+/**
+ * Figure — an image with an accessible caption, for use in post bodies.
+ *
+ * Usage in an .mdx post:
+ *   import Figure from "@/components/post/Figure.astro";
+ *   <Figure src="/images/posts/flow-canvas.png" alt="Flow canvas with two nodes"
+ *           caption="The completed record-triggered flow." />
+ *
+ * Props:
+ *   src     string  — image path (in /public) or absolute URL
+ *   alt     string  — REQUIRED alt text (accessibility + SEO)
+ *   caption? string — visible caption below the image
+ */
+import { withBase } from "@/lib/paths";
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+const { src, alt, caption } = Astro.props;
+---
+
+<figure class="my-6">
+  <img src={withBase(src)} alt={alt} loading="lazy" decoding="async" class="w-full" />
+  {
+    caption && (
+      <figcaption class="mt-2 text-center text-sm text-muted">{caption}</figcaption>
+    )
+  }
+</figure>
